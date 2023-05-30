@@ -1,0 +1,87 @@
+from matplotlib import pyplot as plt
+
+class Task:
+    def __init__(self, pid, name, release_time, execution_time, deadline, period):
+        self.pid = pid
+        self.name = name
+        self.release_time = release_time
+        self.execution_time = execution_time
+        self.deadline = deadline
+        self.period = period
+
+def fifo(tasks, stop_time):
+    current_time=0
+    flag=True
+    while flag==True :
+      tasks.sort(key=lambda x: x.release_time)
+      if current_time>=tasks[0].release_time:
+        gantt_chart.append((tasks[0].name, current_time, current_time+tasks[0].execution_time))
+        current_time+=tasks[0].execution_time
+        tasks[0].release_time+=tasks[0].period
+        for i in tasks:
+          if(current_time==23):
+            print(i.release_time+i.deadline)
+          if current_time+i.execution_time> i.release_time+i.deadline:
+            print(f"deadline of {i.name} is broken because current time = {current_time } and deadline ={i.deadline}  ")
+            flag=False
+            break
+            return
+      else:
+        current_time=tasks[0].release_time
+      if(current_time>=25):
+        return
+
+
+def plot_gantt_chart2(gantt_chart, quantum_time):
+    fig, gnt = plt.subplots()
+
+    gnt.set_title('Round Robin Scheduling')
+    gnt.set_xlabel('Time')
+    gnt.set_ylabel('Tasks')
+
+    colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
+    task_colors = {}
+
+    for i, task in enumerate(gantt_chart):
+        task_name = task[0]
+        start_time = task[1]
+        end_time = task[2]
+        color = task_colors.get(task_name)
+
+        if color is None:
+            color = colors[len(task_colors) % len(colors)]
+            task_colors[task_name] = color
+
+        # Set y-dimension to 5 for all tasks
+        y_dimension = 5
+
+        # Set the position of the task rectangle in line with the x-axis
+        y_position = 0
+
+        gnt.broken_barh([(start_time, end_time - start_time)], (y_position, y_dimension), facecolors=color, edgecolor='black')
+    # Specify x-axis ticks based on the quantum time
+    x_ticks = [i for i in range(int(gantt_chart[0][1]), int(gantt_chart[-1][2]) + 1) if i % quantum_time == 0]
+    plt.xticks(x_ticks)
+
+    # Hide the y-axis
+    gnt.spines['left'].set_visible(False)
+    gnt.yaxis.set_visible(False)
+
+    plt.grid(True)
+
+    plt.show()
+
+
+# Example usage
+# Define a list of Task objects
+tasks = [
+    Task(1, "Task A", 0, 2,6,6),
+    Task(2, "Task k", 1, 2, 8, 8),
+    Task(3, "Task C", 2, 4, 15, 15)
+]
+
+gantt_chart = []
+stop_time = 23  # Specify the time to stop the system
+fifo(tasks, stop_time)
+plot_gantt_chart2(gantt_chart,1)
+
